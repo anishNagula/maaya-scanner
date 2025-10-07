@@ -36,19 +36,19 @@ function App() {
   };
 
   useEffect(() => {
-    // Creates a new scanner
     const scanner = new Html5QrcodeScanner(
-      'qr-reader', // The ID of the div element where the scanner will be rendered
+      'qr-reader',
       {
-        qrbox: { width: 250, height: 250 }, // Sets the size of the scanning box
-        fps: 10, // Frames per second
+        qrbox: { width: 250, height: 250 },
+        fps: 10,
+        // This is the line you need to add 👇
+        facingMode: "environment" 
       },
-      false // verbose output
+      false
     );
 
     scanner.render(onScanSuccess);
 
-    // Cleanup function to stop the scanner when the component unmounts
     return () => {
       scanner.clear().catch(error => {
         console.error("Failed to clear html5-qrcode scanner.", error);
