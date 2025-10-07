@@ -58,17 +58,22 @@ function App() {
 
   return (
     <div id="container">
-      <h1>Event Entry 🎟️</h1>
-      <p>Point the camera at the ID card barcode</p>
-      
-      {/* This div is where the camera feed will appear */}
-      <div id="qr-reader"></div>
+      <header>
+        <h1>Event Entry 🎟️</h1>
+        <p>Point the camera at the ID card barcode</p>
+      </header>
 
-      {result.message && (
-        <div id="result" className={result.status}>
-          {result.message}
-        </div>
-      )}
+      <div id="qr-reader-wrapper">
+        <div id="qr-reader"></div>
+      </div>
+
+      {/* Add a 'visible' class when there's a message */}
+      <div 
+        id="result" 
+        className={`${result.status} ${result.message ? 'visible' : ''}`}
+      >
+        {result.message}
+      </div>
     </div>
   );
 }

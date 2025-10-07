@@ -1,59 +1,85 @@
-/* --- Global Styles & Mobile-First Base --- */
-body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
+/* --- 1. Global Reset & App Foundation --- */
+/* This creates a stable, full-screen canvas */
+html {
   background-color: #f0f2f5;
+}
+
+body {
   margin: 0;
-  padding: 20px;
-  min-height: 100vh;
-  box-sizing: border-box;
-  display: flex;
-  justify-content: center;
-  
-  /* --- KEY CHANGES --- */
-  align-items: flex-start; /* Aligns content to the top */
-  overflow-x: hidden;      /* Prevents all horizontal scrolling */
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  color: #333;
+  /* Prevents any horizontal scrolling, period. */
+  overflow-x: hidden;
 }
 
+/* --- 2. Main App Container --- */
+/* This is now the main screen, not just a box */
 #container {
-  background-color: white;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box; /* Crucial for predictable sizing */
+  min-height: 100vh; /* Takes up at least the full screen height */
+  min-height: 100svh; /* More accurate for mobile viewports */
   padding: 20px;
-  border-radius: 10px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  text-align: center;
-  width: 100%;
-  max-width: 450px;
 }
 
-/* ... the rest of your CSS remains the same ... */
+/* --- 3. Content Styling --- */
+header {
+  text-align: center;
+  flex-shrink: 0; /* Prevents the header from shrinking */
+}
 
 h1 {
-  color: #333;
-  font-size: clamp(1.5rem, 5vw, 2rem);
+  font-size: clamp(1.5rem, 6vw, 1.8rem);
+  margin-top: 0;
+  margin-bottom: 8px;
 }
 
 p {
   color: #666;
+  margin-top: 0;
+  margin-bottom: 20px;
+}
+
+/* --- 4. QR Reader (The Main Event) --- */
+#qr-reader-wrapper {
+  flex-grow: 1; /* Allows this element to take up available space */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 250px; /* Ensures space for the reader even on small screens */
 }
 
 #qr-reader {
   width: 100%;
-  margin: 20px auto;
-  border: 2px solid #eee;
-  border-radius: 8px;
-  overflow: hidden;
+  max-width: 400px;
+  background: #222;
+  border-radius: 12px;
+  overflow: hidden; /* Keeps the video feed contained */
+  border: 4px solid white;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  /* This maintains a square shape, which is ideal for scanners */
+  aspect-ratio: 1 / 1; 
 }
 
+/* --- 5. Result Display --- */
 #result {
   margin-top: 20px;
-  font-size: 18px;
+  font-size: 1.2rem;
   font-weight: bold;
-  padding: 15px;
-  border-radius: 5px;
+  padding: 16px;
+  border-radius: 8px;
   min-height: 30px;
-  transition: all 0.2s ease-in-out;
+  transition: opacity 0.3s ease, transform 0.3s ease;
   word-wrap: break-word;
+  flex-shrink: 0; /* Prevents the result box from shrinking */
+  opacity: 0; /* Hidden by default */
+  transform: translateY(10px);
+}
+
+#result.visible {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 .valid {
@@ -66,17 +92,22 @@ p {
   background-color: #fce8e6;
 }
 
-@media (min-width: 600px) {
-  #container {
-    padding: 40px;
-  }
-  
-  /* Re-center for larger screens where there's more space */
+/* --- 6. Desktop & Tablet Enhancements --- */
+/* These styles only apply on screens wider than 768px */
+@media (min-width: 768px) {
   body {
-    align-items: center; 
+    /* Re-center the container on a larger screen */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
   }
 
-  #result {
-    font-size: 22px;
+  #container {
+    max-width: 450px;
+    height: auto; /* Let content define height on desktop */
+    min-height: 0;
+    max-height: 90vh;
+    border-radius: 12px;
   }
 }
