@@ -5,43 +5,36 @@ body {
     sans-serif;
   background-color: #f0f2f5;
   margin: 0;
-  padding: 20px; /* Add padding for small screens */
-  min-height: 100vh; /* Use min-height to prevent overflow issues */
-  box-sizing: border-box; /* Ensures padding doesn't add to the width/height */
+  padding: 20px;
+  min-height: 100vh;
+  box-sizing: border-box;
   display: flex;
   justify-content: center;
-  align-items: center;
+  
+  /* --- KEY CHANGES --- */
+  align-items: flex-start; /* Aligns content to the top */
+  overflow-x: hidden;      /* Prevents all horizontal scrolling */
 }
 
 #container {
   background-color: white;
-  padding: 20px; /* Reduced padding for mobile */
+  padding: 20px;
   border-radius: 10px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   text-align: center;
-  width: 100%; /* Full width on mobile */
-  max-width: 450px; /* Set a max-width for consistency */
+  width: 100%;
+  max-width: 450px;
 }
+
+/* ... the rest of your CSS remains the same ... */
 
 h1 {
   color: #333;
-  /* Fluid font size: scales between 1.5rem and 2rem */
   font-size: clamp(1.5rem, 5vw, 2rem);
 }
 
 p {
   color: #666;
-}
-
-/* --- QR Reader & Input Styles --- */
-#prnInput {
-  width: 100%;
-  padding: 12px;
-  font-size: 16px; /* Adjusted for better mobile readability */
-  margin-bottom: 20px;
-  box-sizing: border-box;
-  border: 1px solid #ccc;
-  border-radius: 5px;
 }
 
 #qr-reader {
@@ -52,16 +45,15 @@ p {
   overflow: hidden;
 }
 
-/* --- Result & Feedback Styles --- */
 #result {
   margin-top: 20px;
-  font-size: 18px; /* Slightly smaller font for mobile */
+  font-size: 18px;
   font-weight: bold;
   padding: 15px;
   border-radius: 5px;
   min-height: 30px;
   transition: all 0.2s ease-in-out;
-  word-wrap: break-word; /* Prevents long messages from overflowing */
+  word-wrap: break-word;
 }
 
 .valid {
@@ -74,13 +66,17 @@ p {
   background-color: #fce8e6;
 }
 
-/* --- Media Query for Larger Screens (Tablets & Desktops) --- */
 @media (min-width: 600px) {
   #container {
-    padding: 40px; /* Restore larger padding on bigger screens */
+    padding: 40px;
+  }
+  
+  /* Re-center for larger screens where there's more space */
+  body {
+    align-items: center; 
   }
 
   #result {
-    font-size: 22px; /* Restore larger font size */
+    font-size: 22px;
   }
 }
