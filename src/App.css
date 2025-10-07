@@ -1,45 +1,67 @@
+/* --- Global Styles & Mobile-First Base --- */
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
   background-color: #f0f2f5;
+  margin: 0;
+  padding: 20px; /* Add padding for small screens */
+  min-height: 100vh; /* Use min-height to prevent overflow issues */
+  box-sizing: border-box; /* Ensures padding doesn't add to the width/height */
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100vh;
-  margin: 0;
 }
 
 #container {
   background-color: white;
-  padding: 40px;
+  padding: 20px; /* Reduced padding for mobile */
   border-radius: 10px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   text-align: center;
-  width: 90%;
-  max-width: 400px;
+  width: 100%; /* Full width on mobile */
+  max-width: 450px; /* Set a max-width for consistency */
 }
 
 h1 {
   color: #333;
+  /* Fluid font size: scales between 1.5rem and 2rem */
+  font-size: clamp(1.5rem, 5vw, 2rem);
 }
 
+p {
+  color: #666;
+}
+
+/* --- QR Reader & Input Styles --- */
 #prnInput {
   width: 100%;
   padding: 12px;
-  font-size: 18px;
+  font-size: 16px; /* Adjusted for better mobile readability */
   margin-bottom: 20px;
   box-sizing: border-box;
   border: 1px solid #ccc;
   border-radius: 5px;
 }
 
+#qr-reader {
+  width: 100%;
+  margin: 20px auto;
+  border: 2px solid #eee;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+/* --- Result & Feedback Styles --- */
 #result {
   margin-top: 20px;
-  font-size: 22px;
+  font-size: 18px; /* Slightly smaller font for mobile */
   font-weight: bold;
   padding: 15px;
   border-radius: 5px;
   min-height: 30px;
   transition: all 0.2s ease-in-out;
+  word-wrap: break-word; /* Prevents long messages from overflowing */
 }
 
 .valid {
@@ -52,15 +74,13 @@ h1 {
   background-color: #fce8e6;
 }
 
-#qr-reader {
-  width: 100%;
-  max-width: 500px; /* Or a width that suits your design */
-  margin: 20px auto;
-  border: 2px solid #eee;
-  border-radius: 8px;
-  overflow: hidden; /* This keeps the video feed contained */
-}
+/* --- Media Query for Larger Screens (Tablets & Desktops) --- */
+@media (min-width: 600px) {
+  #container {
+    padding: 40px; /* Restore larger padding on bigger screens */
+  }
 
-p {
-  color: #666;
+  #result {
+    font-size: 22px; /* Restore larger font size */
+  }
 }
