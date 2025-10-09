@@ -1,113 +1,119 @@
-/* --- 1. Global Reset & App Foundation --- */
-/* This creates a stable, full-screen canvas */
-html {
-  background-color: #f0f2f5;
+/* --- 1. Global Styles & Desktop Foundation --- */
+:root {
+  --background-color: #f0f2f5;
+  --card-background: #ffffff;
+  --text-primary: #1c1c1e;
+  --text-secondary: #636366;
+  --border-color: #e5e5ea;
+  --accent-color: #007aff;
 }
 
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  color: #333;
-  /* Prevents any horizontal scrolling, period. */
-  overflow-x: hidden;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  background-color: var(--background-color);
+  color: var(--text-primary);
+  /* Use Grid for robust centering on desktop */
+  display: grid;
+  place-items: center;
+  min-height: 100vh;
 }
 
-/* --- 2. Main App Container --- */
-/* This is now the main screen, not just a box */
+/* --- 2. Main App Container (Desktop Card) --- */
 #container {
+  width: 100%;
+  max-width: 480px;
+  background: var(--card-background);
+  border-radius: 20px;
+  padding: 32px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  box-sizing: border-box; /* Crucial for predictable sizing */
-  min-height: 100vh; /* Takes up at least the full screen height */
-  min-height: 100svh; /* More accurate for mobile viewports */
-  padding: 20px;
+  gap: 24px; /* Creates space between elements */
 }
 
 /* --- 3. Content Styling --- */
 header {
   text-align: center;
-  flex-shrink: 0; /* Prevents the header from shrinking */
 }
 
 h1 {
-  font-size: clamp(1.5rem, 6vw, 1.8rem);
-  margin-top: 0;
-  margin-bottom: 8px;
+  font-size: 1.75rem;
+  margin: 0;
 }
 
 p {
-  color: #666;
-  margin-top: 0;
-  margin-bottom: 20px;
+  color: var(--text-secondary);
+  margin: 8px 0 0 0;
+  font-size: 1rem;
 }
 
-/* --- 4. QR Reader (The Main Event) --- */
+/* --- 4. QR Reader --- */
 #qr-reader-wrapper {
-  flex-grow: 1; /* Allows this element to take up available space */
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 250px; /* Ensures space for the reader even on small screens */
+  margin: 0 auto;
+  width: 100%;
+  max-width: 350px;
 }
 
 #qr-reader {
-  width: 100%;
-  max-width: 400px;
-  background: #222;
-  border-radius: 12px;
-  overflow: hidden; /* Keeps the video feed contained */
-  border: 4px solid white;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  /* This maintains a square shape, which is ideal for scanners */
-  aspect-ratio: 1 / 1; 
+  border: 2px solid var(--border-color);
+  border-radius: 16px;
+  overflow: hidden;
+  aspect-ratio: 1 / 1;
+}
+
+/* Hide the library's default "scan from file" link */
+#qr-reader a {
+  display: none !important;
 }
 
 /* --- 5. Result Display --- */
 #result {
-  margin-top: 20px;
-  font-size: 1.2rem;
-  font-weight: bold;
+  font-size: 1.1rem;
+  font-weight: 600;
   padding: 16px;
-  border-radius: 8px;
-  min-height: 30px;
+  border-radius: 12px;
+  min-height: 24px;
   transition: opacity 0.3s ease, transform 0.3s ease;
   word-wrap: break-word;
-  flex-shrink: 0; /* Prevents the result box from shrinking */
-  opacity: 0; /* Hidden by default */
-  transform: translateY(10px);
+  opacity: 0;
+  transform: scale(0.95);
 }
 
 #result.visible {
   opacity: 1;
-  transform: translateY(0);
+  transform: scale(1);
 }
 
 .valid {
-  color: #28a745;
-  background-color: #e9f7eb;
+  color: #34c759;
+  background-color: rgba(52, 199, 89, 0.1);
 }
 
 .invalid {
-  color: #dc3545;
-  background-color: #fce8e6;
+  color: #ff3b30;
+  background-color: rgba(255, 59, 48, 0.1);
 }
 
-/* --- 6. Desktop & Tablet Enhancements --- */
-/* These styles only apply on screens wider than 768px */
-@media (min-width: 768px) {
+/* --- 6. Mobile-Specific Adjustments --- */
+@media (max-width: 600px) {
   body {
-    /* Re-center the container on a larger screen */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 20px;
+    /* Remove centering for a full-screen app feel */
+    display: block;
   }
 
   #container {
-    max-width: 450px;
-    height: auto; /* Let content define height on desktop */
-    min-height: 0;
-    max-height: 90vh;
-    border-radius: 12px;
+    max-width: none;
+    width: 100%;
+    min-height: 100vh;
+    border-radius: 0;
+    box-shadow: none;
+    padding: 24px;
+    gap: 16px;
+  }
+
+  h1 {
+    font-size: 1.5rem;
   }
 }

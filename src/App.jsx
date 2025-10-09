@@ -1,46 +1,46 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import CryptoJS from 'crypto-js';
-import { Html5QrcodeScanner } from 'html5-qrcode';
-import { supabase } from './supabase'; // Import the Supabase client
+import { Html5QrcodeScanner, Html5QrcodeScanType } from 'html5-qrcode';
+import { supabase } from './supabase';
 import './App.css';
 
 function App() {
   const [result, setResult] = useState({ message: '', status: '' });
-  const [isProcessing, setIsProcessing] = useState(false);
+  // Use a ref to hold the scanner instance so it persists across re-renders
+  const scannerRef = useRef(null);
 
-  // The main validation logic, now async to talk to Supabase
+  // This function is now the main control point after a successful scan
+  const onScanSuccess = (decodedText) => {
+    // 1. Immediately pause the scanner to prevent further scans
+    if (scannerRef.current) {
+      scannerRef.current.pause();
+    }
+    // 2. Run the validation logic
+    validatePRN(decodedText);
+  };
+
   const validatePRN = async (prn) => {
-    if (isProcessing || !prn) return;
-    setIsProcessing(true);
+    if (!prn) return;
 
     const hashedPrn = CryptoJS.SHA256(prn.trim()).toString();
 
     try {
-      // 1. Fetch the specific student record from Supabase
       const { data, error } = await supabase
         .from('students')
         .select('checked_in')
         .eq('id', hashedPrn)
-        .single(); // Use .single() because we expect only one result
+        .single();
 
-      if (error && error.code !== 'PGRST116') { // Ignore 'PGRST116' (row not found)
-        throw error;
-      }
+      if (error && error.code !== 'PGRST116') throw error;
 
       if (data) {
-        // 2. Check if already checked in
         if (data.checked_in) {
           setResult({ status: 'invalid', message: '⚠️ Already Checked In!' });
         } else {
-          // 3. Grant access and update the database
           setResult({ status: 'valid', message: '✅ Access Granted! Welcome.' });
-          await supabase
-            .from('students')
-            .update({ checked_in: true })
-            .eq('id', hashedPrn);
+          await supabase.from('students').update({ checked_in: true }).eq('id', hashedPrn);
         }
       } else {
-        // 4. If no data is found, the PRN is invalid
         setResult({ status: 'invalid', message: '❌ Access Denied! PRN not found.' });
       }
     } catch (error) {
@@ -48,42 +48,55 @@ function App() {
       setResult({ status: 'invalid', message: '🔌 DB Connection Error. Check console.' });
     }
 
+    // After 4 seconds, clear the message and resume scanning
     setTimeout(() => {
       setResult({ message: '', status: '' });
-      setIsProcessing(false);
+      if (scannerRef.current) {
+        scannerRef.current.resume();
+      }
     }, 4000);
   };
 
+  // This useEffect runs only ONCE when the component mounts
   useEffect(() => {
-    const scanner = new Html5QrcodeScanner('qr-reader', {
-      qrbox: { width: 250, height: 250 },
-      fps: 10,
-      facingMode: "environment"
-    }, false);
-    
-    const handleScan = (decodedText) => {
-        if (!isProcessing) {
-            validatePRN(decodedText);
-        }
-    }
-    
-    scanner.render(handleScan);
+    // Create and configure the scanner
+    const scanner = new Html5QrcodeScanner(
+      'qr-reader',
+      {
+        qrbox: { width: 250, height: 250 },
+        fps: 10,
+        facingMode: "environment",
+        // Only allow scanning from the camera
+        supportedScanTypes: [Html5QrcodeScanType.SCAN_TYPE_CAMERA]
+      },
+      false // Verbose logs
+    );
 
+    // Store the instance in our ref
+    scannerRef.current = scanner;
+    
+    // Start scanning
+    scanner.render(onScanSuccess);
+
+    // Cleanup function to clear the scanner on component unmount
     return () => {
-      scanner.clear().catch(error => console.error("Scanner clear failed.", error));
+      if (scannerRef.current) {
+        scannerRef.current.clear().catch(error => console.error("Scanner clear failed.", error));
+      }
     };
-  }, [isProcessing]);
+  }, []); // Empty dependency array ensures this runs only once
 
-  // Your JSX structure remains the same
   return (
     <div id="container">
       <header>
-        <h1>Event Entry 🎟️</h1>
-        <p>Point the camera at the ID card barcode</p>
+        <h1>Event Entry Scanner 🎟️</h1>
+        <p>Center the ID card's barcode in the box below</p>
       </header>
+
       <div id="qr-reader-wrapper">
         <div id="qr-reader"></div>
       </div>
+
       <div id="result" className={`${result.status} ${result.message ? 'visible' : ''}`}>
         {result.message}
       </div>
