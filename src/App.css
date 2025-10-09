@@ -1,16 +1,16 @@
 /* --- 1. Global Styles & Desktop Foundation --- */
 :root {
-  --background-color: #f0f2f5;
-  --card-background: #ffffff;
-  --text-primary: #1c1c1e;
-  --text-secondary: #636366;
+  --background-color: #000;
+  --card-background: #2c2c2c;
+  --text-primary: #fff;
+  --text-secondary: #dbdbdb;
   --border-color: #e5e5ea;
   --accent-color: #007aff;
 }
 
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  font-family: "Montserrat";
   background-color: var(--background-color);
   color: var(--text-primary);
   /* Use Grid for robust centering on desktop */
