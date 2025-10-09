@@ -1,27 +1,17 @@
 import React, { useState, useEffect, useRef } from 'react';
 import CryptoJS from 'crypto-js';
-import { Html5QrcodeScanner, Html5QrcodeScanType } from 'html5-qrcode';
+import { BrowserMultiFormatReader } from '@zxing/browser';
 import { supabase } from './supabase';
 import './App.css';
 
 function App() {
   const [result, setResult] = useState({ message: '', status: '' });
-  // Use a ref to hold the scanner instance so it persists across re-renders
-  const scannerRef = useRef(null);
-
-  // This function is now the main control point after a successful scan
-  const onScanSuccess = (decodedText) => {
-    // 1. Immediately pause the scanner to prevent further scans
-    if (scannerRef.current) {
-      scannerRef.current.pause();
-    }
-    // 2. Run the validation logic
-    validatePRN(decodedText);
-  };
+  const [isProcessing, setIsProcessing] = useState(false);
+  const videoRef = useRef(null); // Ref to hold the video element
+  const controlsRef = useRef(null); // Ref to hold the scanner controls
 
   const validatePRN = async (prn) => {
     if (!prn) return;
-
     const hashedPrn = CryptoJS.SHA256(prn.trim()).toString();
 
     try {
@@ -30,9 +20,7 @@ function App() {
         .select('checked_in')
         .eq('id', hashedPrn)
         .single();
-
       if (error && error.code !== 'PGRST116') throw error;
-
       if (data) {
         if (data.checked_in) {
           setResult({ status: 'invalid', message: '⚠️ Already Checked In!' });
@@ -48,43 +36,51 @@ function App() {
       setResult({ status: 'invalid', message: '🔌 DB Connection Error. Check console.' });
     }
 
-    // After 4 seconds, clear the message and resume scanning
+    // After 4 seconds, clear the message and allow scanning again
     setTimeout(() => {
       setResult({ message: '', status: '' });
-      if (scannerRef.current) {
-        scannerRef.current.resume();
-      }
+      setIsProcessing(false);
     }, 4000);
   };
 
-  // This useEffect runs only ONCE when the component mounts
+  // This useEffect runs only ONCE to initialize and clean up the scanner
   useEffect(() => {
-    // Create and configure the scanner
-    const scanner = new Html5QrcodeScanner(
-      'qr-reader',
-      {
-        qrbox: { width: 250, height: 250 },
-        fps: 10,
-        facingMode: "environment",
-        // Only allow scanning from the camera
-        supportedScanTypes: [Html5QrcodeScanType.SCAN_TYPE_CAMERA]
-      },
-      false // Verbose logs
-    );
+    const codeReader = new BrowserMultiFormatReader();
 
-    // Store the instance in our ref
-    scannerRef.current = scanner;
-    
-    // Start scanning
-    scanner.render(onScanSuccess);
-
-    // Cleanup function to clear the scanner on component unmount
-    return () => {
-      if (scannerRef.current) {
-        scannerRef.current.clear().catch(error => console.error("Scanner clear failed.", error));
+    const startScanner = async () => {
+      if (videoRef.current) {
+        try {
+          // Use decodeFromConstraints to directly ask for the back camera
+          const streamControls = await codeReader.decodeFromConstraints(
+            { video: { facingMode: 'environment' } },
+            videoRef.current,
+            (scanResult, err) => {
+              if (scanResult && !isProcessing) {
+                setIsProcessing(true); // Prevent multiple validations
+                validatePRN(scanResult.getText());
+              }
+            }
+          );
+          // Store the controls so we can stop the stream later
+          controlsRef.current = streamControls;
+        } catch (err) {
+          console.error("Error initializing scanner:", err);
+          // Display an error to the user if the camera fails
+          setResult({ status: 'invalid', message: '📷 Camera Error. Please grant permission and refresh.' });
+        }
       }
     };
-  }, []); // Empty dependency array ensures this runs only once
+
+    startScanner();
+
+    // Cleanup function: this is called when the component unmounts
+    return () => {
+      if (controlsRef.current) {
+        // Use the correct method to stop the video stream and release the camera
+        controlsRef.current.stop();
+      }
+    };
+  }, [isProcessing]); // Dependency array still uses isProcessing to re-engage the listener loop
 
   return (
     <div id="container">
@@ -92,11 +88,9 @@ function App() {
         <h1>Event Entry Scanner 🎟️</h1>
         <p>Center the ID card's barcode in the box below</p>
       </header>
-
       <div id="qr-reader-wrapper">
-        <div id="qr-reader"></div>
+        <video ref={videoRef} id="qr-reader-video" />
       </div>
-
       <div id="result" className={`${result.status} ${result.message ? 'visible' : ''}`}>
         {result.message}
       </div>

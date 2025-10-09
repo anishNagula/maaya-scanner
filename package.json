@@ -11,8 +11,8 @@
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.74.0",
+    "@zxing/browser": "^0.1.5",
     "crypto-js": "^4.2.0",
-    "html5-qrcode": "^2.3.8",
     "react": "^19.1.1",
     "react-dom": "^19.1.1"
   },
